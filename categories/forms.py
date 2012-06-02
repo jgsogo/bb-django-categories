@@ -1,10 +1,15 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from categories.models import Category
 
+CATEGORIES_DEFAULT_HELP = _("""Categories for this item.""")
+CATEGORIES_HELP = getattr(settings, 'CATEGORIES_HELP', CATEGORIES_DEFAULT_HELP)
+
+
 class CategoriesFormMixin(forms.ModelForm):
-    categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.all(), widget = forms.CheckboxSelectMultiple(), help_text = _(u'Categories for this item'))
+    categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.all(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance', None):
