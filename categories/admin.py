@@ -10,4 +10,8 @@ class CategoryAdmin(MPTTModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     mptt_level_indent = 20
 
+    def queryset(self, request):
+        """Limit the list of categories according to user"""
+        return self.model._default_manager.choices(request.user)
+
 admin.site.register(Category, CategoryAdmin)

@@ -9,7 +9,7 @@ CATEGORIES_HELP = getattr(settings, 'CATEGORIES_HELP', CATEGORIES_DEFAULT_HELP)
 
 
 class CategoriesFormMixin(forms.ModelForm):
-    categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.all(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
+    categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.choices(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance', None):
