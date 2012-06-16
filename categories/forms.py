@@ -13,9 +13,15 @@ class CategoriesFormMixin(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         queryset = kwargs.pop('queryset', None)
+        user = kwargs.pop('user', None)
         super(CategoriesFormMixin, self).__init__(*args, **kwargs)
         if queryset:
             self.fields['categories'].queryset = queryset
+        else:
+            if user:
+                self.fields['categories'].queryset = Category.objects.choices(user)
+            elif kwargs.get('instance', None):
+                self.fields['categories'].queryset = Category.objects.choices(kwargs.get('instance').author)
         if kwargs.get('instance', None):
             self.fields['categories'].initial = kwargs['instance'].categories.all().values_list('id', flat = True)
 
