@@ -12,14 +12,12 @@ class CategoriesFormMixin(forms.ModelForm):
     categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.choices(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
 
     def __init__(self, *args, **kwargs):
-        if kwargs.get('instance', None):
-            initial = kwargs.get('initial', {})
-            initial['categories'] = kwargs['instance'].categories.all().values_list('id', flat = True)
-            kwargs['initial'] = initial
         queryset = kwargs.pop('queryset', None)
         super(CategoriesFormMixin, self).__init__(*args, **kwargs)
         if queryset:
             self.fields['categories'].queryset = queryset
+        if kwargs.get('instance', None):
+            self.fields['categories'].initial = kwargs['instance'].categories.all().values_list('id', flat = True)
 
     def save(self, force_insert = False, force_update = False, commit = True):
         instance = super(CategoriesFormMixin, self).save(commit = False)
