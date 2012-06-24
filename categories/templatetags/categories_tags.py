@@ -1,7 +1,7 @@
 import logging
 
 from django import template
-from categories.models import Category
+from categories.models import Category, CATEGORY_PUBLICY_PUBLIC
 
 register = template.Library()
 
@@ -38,7 +38,7 @@ class GetCategoriesNode(template.Node):
         #user = context.get('user', None)
 
         # get the categories in the appropriate order
-        categories = Category.objects.all()#.order_by(order)
+        categories = Category.objects.filter(public=CATEGORY_PUBLICY_PUBLIC)#.order_by(order)
 
         if self.count:
             # if we have a number of categories to retrieve, pull the first of them
