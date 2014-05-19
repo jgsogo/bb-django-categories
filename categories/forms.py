@@ -1,30 +1,34 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from categories.models import Category
 
-CATEGORIES_DEFAULT_HELP = _("""Categories for this item.""")
-CATEGORIES_HELP = getattr(settings, 'CATEGORIES_HELP', CATEGORIES_DEFAULT_HELP)
-
 
 class CategoriesFormMixin(forms.ModelForm):
-    categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.choices(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
+    _model_field_name = 'categories'
+
+    #_categories = forms.ModelMultipleChoiceField(required = False, queryset = Category.objects.choices(), widget = forms.CheckboxSelectMultiple(), help_text = CATEGORIES_HELP)
 
     def __init__(self, *args, **kwargs):
         queryset = kwargs.pop('queryset', None)
         user = kwargs.pop('user', None)
         super(CategoriesFormMixin, self).__init__(*args, **kwargs)
-        if queryset:
-            self.fields['categories'].queryset = queryset
-        else:
-            if user:
-                self.fields['categories'].queryset = Category.objects.choices(user)
-            elif kwargs.get('instance', None):
-                self.fields['categories'].queryset = Category.objects.choices(kwargs.get('instance').author)
-        if kwargs.get('instance', None):
-            self.fields['categories'].initial = kwargs['instance'].categories.all().values_list('id', flat = True)
 
+        # Form template
+        self.fields[self._model_field_name].widget = forms.CheckboxSelectMultiple()
+        self.fields[self._model_field_name].help_text = _("%(model_field)s for this item") % {'model_field': self.Meta.model._meta.get_field_by_name(self._model_field_name)[0].verbose_name}
+
+        # Queryset
+        if queryset:
+            self.fields[self._model_field_name].queryset = queryset
+        else:
+            self.fields[self._model_field_name].queryset = Category.objects.choices(user)
+
+        if kwargs.get('instance', None):
+            instance_categories_qs = getattr(kwargs['instance'], self._model_field_name)
+            self.fields[self._model_field_name].initial = instance_categories_qs.all().values_list('id', flat = True)
+
+    """
     def save(self, force_insert = False, force_update = False, commit = True):
         instance = super(CategoriesFormMixin, self).save(commit = False)
 
@@ -32,9 +36,10 @@ class CategoriesFormMixin(forms.ModelForm):
         def save_m2m():
             if old_m2m:
                 old_m2m()
-            instance.categories.clear()
-            for category in self.cleaned_data['categories']:
-                instance.categories.add(category)
+            fildset = getattr(instance, self._model_field_name)
+            fildset.clear()
+            for category in self.cleaned_data['_categories']:
+                fildset.add(category)
 
         if commit:
             instance.save()
@@ -42,4 +47,4 @@ class CategoriesFormMixin(forms.ModelForm):
         else:
             self.save_m2m = save_m2m
         return instance
-
+    """
