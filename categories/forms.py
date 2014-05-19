@@ -16,7 +16,8 @@ class CategoriesFormMixin(forms.ModelForm):
 
         # Form template
         self.fields[self._model_field_name].widget = forms.CheckboxSelectMultiple()
-        self.fields[self._model_field_name].help_text = _("%(model_field)s for this item") % {'model_field': self.Meta.model._meta.get_field_by_name(self._model_field_name)[0].verbose_name}
+        help_text = _("%(model_field)s for this item") % {'model_field': self.Meta.model._meta.get_field_by_name(self._model_field_name)[0].verbose_name}
+        self.fields[self._model_field_name].help_text = help_text.capitalize()
 
         # Queryset
         if queryset:
